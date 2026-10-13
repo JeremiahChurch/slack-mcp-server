@@ -100,6 +100,7 @@ func TestValidToolNames(t *testing.T) {
 			ToolReactionsAdd:                true,
 			ToolReactionsRemove:             true,
 			ToolAttachmentGetData:           true,
+			ToolAttachmentDownload:          true,
 			ToolConversationsSearchMessages: true,
 			ToolConversationsUnreads:        true,
 			ToolConversationsMark:           true,

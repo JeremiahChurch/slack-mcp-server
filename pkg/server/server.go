@@ -31,6 +31,7 @@ const (
 	ToolReactionsAdd                = "reactions_add"
 	ToolReactionsRemove             = "reactions_remove"
 	ToolAttachmentGetData           = "attachment_get_data"
+	ToolAttachmentDownload          = "attachment_download"
 	ToolConversationsSearchMessages = "conversations_search_messages"
 	ToolConversationsUnreads        = "conversations_unreads"
 	ToolConversationsMark           = "conversations_mark"
@@ -56,6 +57,7 @@ var ValidToolNames = []string{
 	ToolReactionsAdd,
 	ToolReactionsRemove,
 	ToolAttachmentGetData,
+	ToolAttachmentDownload,
 	ToolConversationsSearchMessages,
 	ToolConversationsUnreads,
 	ToolConversationsMark,
@@ -249,6 +251,18 @@ func NewMCPServer(provider *provider.ApiProvider, logger *zap.Logger, enabledToo
 				mcp.Description("The ID of the attachment to download, in format Fxxxxxxxxxx. Attachment IDs (with filenames) can be found in the AttachmentIDs field of message metadata when FileCount > 0."),
 			),
 		), conversationsHandler.FilesGetHandler)
+	}
+
+	if shouldAddTool(ToolAttachmentDownload, enabledTools, "SLACK_MCP_DOWNLOAD_DIR") {
+		s.AddTool(mcp.NewTool(ToolAttachmentDownload,
+			mcp.WithDescription("Save one or more Slack files to the shared download folder. Returns CSV of FileID, Filename, Mimetype, Size, Error per file; file contents are not returned. No size limit."),
+			mcp.WithTitleAnnotation("Download Attachments"),
+			mcp.WithReadOnlyHintAnnotation(true),
+			mcp.WithString("file_ids",
+				mcp.Required(),
+				mcp.Description("Comma-separated file IDs (Fxxxxxxxxxx), up to 50. The AttachmentIDs value from message results can be passed as-is."),
+			),
+		), conversationsHandler.AttachmentDownloadHandler)
 	}
 
 	conversationsSearchTool := mcp.NewTool(ToolConversationsSearchMessages,
